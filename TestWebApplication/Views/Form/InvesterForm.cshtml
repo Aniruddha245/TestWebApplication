@@ -151,7 +151,7 @@
                                                     <td>@investor.LandArea</td>
                                                     <td>@investor.LandUnit</td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-primary action-btn" data-id="@investor.InvestorId">
+                                                        <button class="btn btn-sm btn-primary action-btn" data-id="@investor.InvestorId" id="tabkeactionbtn">
                                                             Take Action
                                                         </button>
                                                     </td>
@@ -222,11 +222,39 @@
                 });
             });
 
-            $(".action-btn").click(function() {
-                var id = $(this).data("id");
-                alert("Action triggered for Investor ID " + id);
-                // Implementation for take action goes here
-            });
+
         });
+        $(document).on("click", ".action-btn", function () {
+            alert("c");
+           /* var id = $(this).data("id");*/
+            var id = String($(this).data("id")); // ? string
+            var requestData = {
+                referenceId: id,
+                formId: "FORM202603216",
+               
+                context: {
+                   // investorId: id
+                },
+                userType: ""
+            };
+
+            $.ajax({
+                url: '/Form/GetEvalueteRules',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+
+                success: function (response) {
+                    console.log(response);
+                    alert("Action done for ID: " + id);
+                },
+
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+
+        });
+
     </script>
 }

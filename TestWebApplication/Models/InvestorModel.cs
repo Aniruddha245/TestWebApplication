@@ -12,4 +12,20 @@ namespace TestWebApplication.Models
         public string? District { get; set; }
         public bool IsActive { get; set; } = true;
     }
+
+
+    public class ExternalApiSettings
+    {
+        public string WorkflowCallApi { get; set; } = string.Empty;
+       
+    }
+    public class FormDetails
+    {
+        public string? ReferenceId { get; set; }
+        public string? FormId { get; set; }
+        public Dictionary<string, object?> Context { get; set; } = new();
+        public string? UserType {  get; set; }
+
+    }
 }
+

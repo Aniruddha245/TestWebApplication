@@ -1,9 +1,13 @@
 using TestWebApplication.Container;
+using TestWebApplication.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+builder.Services.Configure<ExternalApiSettings>(
+    builder.Configuration.GetSection("ExternalApis"));
 //calling custom container
 CustomConatiner.AddCustomContainer(builder.Services, builder.Configuration);
 
