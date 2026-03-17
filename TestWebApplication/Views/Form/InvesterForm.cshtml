@@ -1,0 +1,232 @@
+@model IEnumerable<TestWebApplication.Models.InvestorModel>
+
+@{
+    ViewData["Title"] = "Investor Management";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Investor Management</h4>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab" aria-controls="add" aria-selected="true">Add Investor</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="view-tab" data-bs-toggle="tab" data-bs-target="#view" type="button" role="tab" aria-controls="view" aria-selected="false">View Investors</button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content mt-4" id="myTabContent">
+                        
+                        <!-- Add Investor Tab -->
+                        <div class="tab-pane fade show active" id="add" role="tabpanel" aria-labelledby="add-tab">
+                            <form id="investorForm">
+                                <div class="row">
+                                    <!-- Full Name -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" id="FullName" name="FullName" class="form-control" />
+                                    </div>
+
+                                    <!-- Mobile -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Mobile Number</label>
+                                        <input type="tel" id="MobileNumber" name="MobileNumber" class="form-control" />
+                                    </div>
+
+                                    <!-- District -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">District (Odisha)</label>
+                                        <select id="District" name="District" class="form-select">
+                                            <option value="">-- Select District --</option>
+                                            <option value="Angul">Angul</option>
+                                            <option value="Balangir">Balangir</option>
+                                            <option value="Balasore">Balasore</option>
+                                            <option value="Bargarh">Bargarh</option>
+                                            <option value="Bhadrak">Bhadrak</option>
+                                            <option value="Boudh">Boudh</option>
+                                            <option value="Cuttack">Cuttack</option>
+                                            <option value="Deogarh">Deogarh</option>
+                                            <option value="Dhenkanal">Dhenkanal</option>
+                                            <option value="Gajapati">Gajapati</option>
+                                            <option value="Ganjam">Ganjam</option>
+                                            <option value="Jagatsinghapur">Jagatsinghapur</option>
+                                            <option value="Jajpur">Jajpur</option>
+                                            <option value="Jharsuguda">Jharsuguda</option>
+                                            <option value="Kalahandi">Kalahandi</option>
+                                            <option value="Kandhamal">Kandhamal</option>
+                                            <option value="Kendrapara">Kendrapara</option>
+                                            <option value="Kendujhar (Keonjhar)">Kendujhar (Keonjhar)</option>
+                                            <option value="Khordha">Khordha</option>
+                                            <option value="Koraput">Koraput</option>
+                                            <option value="Malkangiri">Malkangiri</option>
+                                            <option value="Mayurbhanj">Mayurbhanj</option>
+                                            <option value="Nabarangpur">Nabarangpur</option>
+                                            <option value="Nayagarh">Nayagarh</option>
+                                            <option value="Nuapada">Nuapada</option>
+                                            <option value="Puri">Puri</option>
+                                            <option value="Rayagada">Rayagada</option>
+                                            <option value="Sambalpur">Sambalpur</option>
+                                            <option value="Sonepur">Sonepur</option>
+                                            <option value="Sundargarh">Sundargarh</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" id="Email" name="Email" class="form-control" />
+                                    </div>
+
+                                    <!-- Land Details -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Land Details</label>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input type="number" id="LandArea" name="LandArea" class="form-control" placeholder="Land Area" />
+                                            </div>
+                                            <div class="col-4">
+                                                <select id="LandUnit" name="LandUnit" class="form-select">
+                                                    <option value="">Unit</option>
+                                                    <option value="Acre">Acre</option>
+                                                    <option value="SquareMeter">Sq. M</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Address</label>
+                                        <textarea id="Address" name="Address" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="button" id="btnSaveInvestor" class="btn btn-success float-end">
+                                            Register Investor
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- View Investors Tab -->
+                        <div class="tab-pane fade" id="view" role="tabpanel" aria-labelledby="view-tab">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Full Name</th>
+                                            <th>District</th>
+                                            <th>Mobile</th>
+                                            <th>Email</th>
+                                            <th>Land Area</th>
+                                            <th>Unit</th>
+                                            <th>Take Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model != null && Model.Any())
+                                        {
+                                            foreach (var investor in Model)
+                                            {
+                                                <tr>
+                                                    <td>@investor.InvestorId</td>
+                                                    <td>@investor.FullName</td>
+                                                    <td>@investor.District</td>
+                                                    <td>@investor.MobileNumber</td>
+                                                    <td>@investor.Email</td>
+                                                    <td>@investor.LandArea</td>
+                                                    <td>@investor.LandUnit</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary action-btn" data-id="@investor.InvestorId">
+                                                            Take Action
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="7" class="text-center">No investors found.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#btnSaveInvestor").click(function () {
+                var payload = {
+                    FullName: $("#FullName").val(),
+                    Address: $("#Address").val(),
+                    District: $("#District").val(),
+                    MobileNumber: $("#MobileNumber").val(),
+                    Email: $("#Email").val(),
+                    LandArea: parseFloat($("#LandArea").val()) || 0,
+                    LandUnit: $("#LandUnit").val()
+                };
+
+                // Basic validation
+                if (!payload.FullName || !payload.MobileNumber || !payload.District) {
+                    alert("Full Name, District, and Mobile Number are required!");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Form/CreateInvestor',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            // Refresh page to show updated list
+                            location.reload(); 
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMessage = "Something went wrong";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        alert(errorMessage);
+                    }
+                });
+            });
+
+            $(".action-btn").click(function() {
+                var id = $(this).data("id");
+                alert("Action triggered for Investor ID " + id);
+                // Implementation for take action goes here
+            });
+        });
+    </script>
+}
