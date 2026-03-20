@@ -21,10 +21,10 @@ namespace TestWebApplication.Models
     }
     public class FormDetails
     {
-        public string? ReferenceId { get; set; }
+        public string? ReferenceKey { get; set; }
         public string? FormId { get; set; }
         public Dictionary<string, object?> Context { get; set; } = new();
-        public string? UserType {  get; set; }
+        public string? UsedTypes  {  get; set; }
 
     }
 }
