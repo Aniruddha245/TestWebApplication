@@ -1,4 +1,4 @@
-namespace TestWebApplication.Models
+namespace TestApplication.API.Models
 {
     public class InvestorModel
     {
@@ -13,11 +13,7 @@ namespace TestWebApplication.Models
         public bool IsActive { get; set; } = true;
     }
 
-    public class InvestorRequestModel
-    {
-        public InvestorModel Investor { get; set; } = new InvestorModel();
-        public string FormId { get; set; } = string.Empty;
-    }
+
     public class ExternalApiSettings
     {
         public string WorkflowCallApi { get; set; } = string.Empty;

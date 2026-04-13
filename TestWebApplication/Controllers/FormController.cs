@@ -27,65 +27,75 @@ namespace TestWebApplication.Controllers
             var investors = await _investorRepo.GetAllInvestors();
             return View(investors);
         }
-
         [HttpPost]
-        public async Task<IActionResult> CreateInvestor([FromBody] InvestorModel obj)
+        public async Task<IActionResult> CreateInvestor([FromBody] InvestorRequestModel request)
         {
-            if (obj == null)
-                return BadRequest(new { success = false, message = "Invalid data" });
+            if (request == null || request.Investor == null)
+                return Json(new { success = false, message = "Invalid data" });
 
+            if (string.IsNullOrWhiteSpace(request.FormId))
+                return Json(new { success = false, message = "FormId is required" });
+
+            var obj = request.Investor;
             obj.IsActive = true;
-            var result = await _investorRepo.InsertInvestor(obj);
 
-            if (result == 1)
+            // Insert investor and get generated InvestorId
+            var investorId = await _investorRepo.InsertInvestor(obj);
+
+            if (investorId <= 0)
             {
-                return Ok(new
+                return StatusCode(500, new
                 {
-                    success = true,
-                    message = "Investor registered successfully"
+                    success = false,
+                    message = "Failed to register investor"
                 });
             }
 
-            return StatusCode(500, new
+            // Prepare FormDetails for Workflow API
+            var formDetails = new FormDetails
             {
-                success = false,
-                message = "Failed to register investor"
-            });
-        }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> GetEvalueteRules([FromBody] FormDetails obj )
-        {
-            if (obj == null)
-                return BadRequest("Invalid request data");
-            // Optional validation (example)
-            if (string.IsNullOrEmpty(obj.FormId))
-                return BadRequest("FormId is required");
+                ReferenceKey = investorId.ToString(),
+                FormId = request.FormId, // Dynamic FormId from popup
+                UsedTypes = null,
+                Context = new Dictionary<string, object?>()
+            };
 
             var url = _externalApiSettings.WorkflowCallApi;
-            obj.Context ??= new Dictionary<string, object?>();
 
-            // Send the same object to external API
             var jsonContent = new StringContent(
-                JsonSerializer.Serialize(obj),
+                JsonSerializer.Serialize(formDetails),
                 Encoding.UTF8,
                 "application/json");
 
             var response = await _httpClient.PostAsync(url, jsonContent);
 
-            if (!response.IsSuccessStatusCode)
+            object? workflowResponse = null;
+            string? errorMessage = null;
+
+            if (response.IsSuccessStatusCode)
             {
-                return StatusCode((int)response.StatusCode,
-                    "Error calling Workflow API");
+                var resultContent = await response.Content.ReadAsStringAsync();
+                workflowResponse = JsonSerializer.Deserialize<object>(
+                    resultContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
-            var result = await response.Content.ReadAsStringAsync();
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
 
-            // Convert string JSON to actual JSON object
-            var jsonObject = JsonSerializer.Deserialize<object>(result);
-
-            return Ok(jsonObject);
+            return Json(new
+            {
+                success = true,
+                message = "Investor registered successfully",
+                investorId = investorId,
+                workflowTriggered = response.IsSuccessStatusCode,
+                workflowResponse = workflowResponse,
+                workflowError = errorMessage
+            });
         }
+
+
+        
     }
 }

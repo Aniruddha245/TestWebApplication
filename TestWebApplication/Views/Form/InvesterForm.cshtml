@@ -120,7 +120,26 @@
                                 </div>
                             </form>
                         </div>
-
+                        <!-- FormId Modal -->
+                        <div class="modal fade" id="formIdModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Enter Form ID</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <label class="form-label">Form ID</label>
+                                        <input type="text" id="txtFormId" class="form-control" placeholder="Enter Form ID" />
+                                        <span class="text-danger" id="formIdError"></span>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="btnSubmitFormId" class="btn btn-success">Submit</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- View Investors Tab -->
                         <div class="tab-pane fade" id="view" role="tabpanel" aria-labelledby="view-tab">
                             <div class="table-responsive">
@@ -134,7 +153,7 @@
                                             <th>Email</th>
                                             <th>Land Area</th>
                                             <th>Unit</th>
-                                            <th>Take Action</th>
+                                            @* <th>Take Action</th> *@
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -150,11 +169,11 @@
                                                     <td>@investor.Email</td>
                                                     <td>@investor.LandArea</td>
                                                     <td>@investor.LandUnit</td>
-                                                    <td>
+                                                    @* <td>
                                                         <button class="btn btn-sm btn-primary action-btn" data-id="@investor.InvestorId" id="tabkeactionbtn">
                                                             Take Action
                                                         </button>
-                                                    </td>
+                                                    </td> *@
                                                 </tr>
                                             }
                                         }
@@ -179,82 +198,116 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
-        $(document).ready(function () {
-            $("#btnSaveInvestor").click(function () {
-                var payload = {
-                    FullName: $("#FullName").val(),
-                    Address: $("#Address").val(),
-                    District: $("#District").val(),
-                    MobileNumber: $("#MobileNumber").val(),
-                    Email: $("#Email").val(),
-                    LandArea: parseFloat($("#LandArea").val()) || 0,
-                    LandUnit: $("#LandUnit").val()
-                };
+        let investorPayload = null;
 
-                // Basic validation
-                if (!payload.FullName || !payload.MobileNumber || !payload.District) {
-                    alert("Full Name, District, and Mobile Number are required!");
-                    return;
-                }
+        // Open popup when Register button is clicked
+        $("#btnSaveInvestor").click(function () {
+        investorPayload = {
+        FullName: $("#FullName").val(),
+        Address: $("#Address").val(),
+        District: $("#District").val(),
+        MobileNumber: $("#MobileNumber").val(),
+        Email: $("#Email").val(),
+        LandArea: parseFloat($("#LandArea").val()) || 0,
+        LandUnit: $("#LandUnit").val()
+        };
 
-                $.ajax({
-                    url: '/Form/CreateInvestor',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(payload),
-                    success: function (response) {
-                        if (response.success) {
-                            alert(response.message);
-                            // Refresh page to show updated list
-                            location.reload(); 
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function (xhr) {
-                        var errorMessage = "Something went wrong";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-                        alert(errorMessage);
-                    }
-                });
-            });
+        // Basic validation
+        if (!investorPayload.FullName ||
+        !investorPayload.MobileNumber ||
+        !investorPayload.District) {
+        alert("Full Name, District, and Mobile Number are required!");
+        return;
+        }
 
-
+        $("#txtFormId").val("");
+        $("#formIdError").text("");
+        var modal = new bootstrap.Modal(document.getElementById('formIdModal'));
+        modal.show();
         });
+
+        // Submit FormId and Investor Data
+        $("#btnSubmitFormId").click(function () {
+        var formId = $("#txtFormId").val().trim();
+
+        if (!formId) {
+        $("#formIdError").text("FormId is required.");
+        return;
+        }
+
+        const requestData = {
+        investor: investorPayload,
+        formId: formId
+        };
+
+        $.ajax({
+        url: '/Form/CreateInvestor',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function (response) {
+        bootstrap.Modal.getInstance(
+        document.getElementById('formIdModal')
+        ).hide();
+
+        if (response.success) {
+        let message = response.message +
+        "\nInvestor ID: " + response.investorId;
+
+        if (response.workflowTriggered) {
+        message += "\n\nWorkflow Response:\n" +
+        JSON.stringify(response.workflowResponse, null, 2);
+        } else if (response.workflowError) {
+        message += "\n\nWorkflow Error:\n" +
+        response.workflowError;
+        }
+
+        alert(message);
+        location.reload();
+        } else {
+        alert(response.message);
+        }
+        },
+        error: function (xhr) {
+        let errorMessage = "Something went wrong.";
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+        errorMessage = xhr.responseJSON.message;
+        } else if (xhr.responseText) {
+        errorMessage = xhr.responseText;
+        }
+        alert(errorMessage);
+        }
+        });
+        });
+
+        // Take Action button workflow trigger
         $(document).on("click", ".action-btn", function () {
-            alert("c");
-           /* var id = $(this).data("id");*/
-            var id = String($(this).data("id")); // ? string
-            var requestData = {
-                referenceKey: id,
-                formId: "FORM202603216",
-               
-                context: {
-                   // investorId: id
-                },
-                userType: ""
-            };
+        var id = String($(this).data("id"));
 
-            $.ajax({
-                url: '/Form/GetEvalueteRules',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(requestData),
+        var requestData = {
+        referenceKey: id,
+        formId: prompt("Enter Form ID:", "FORM202603216"),
+        context: {},
+        usedTypes: null
+        };
 
-                success: function (response) {
-                    console.log(response);
-                    alert("Action done for ID: " + id);
-                },
+        if (!requestData.formId) return;
 
-                error: function (xhr) {
-                    console.log(xhr.responseText);
-                }
-            });
-
+        $.ajax({
+        url: '/Form/GetEvalueteRules',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function (response) {
+        alert("Workflow Response:\n" +
+        JSON.stringify(response, null, 2));
+        },
+        error: function (xhr) {
+        alert("Error:\n" + xhr.responseText);
+        }
         });
-
+        });
     </script>
 }
